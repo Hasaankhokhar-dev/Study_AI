@@ -4,32 +4,38 @@ import '../services/ai_service.dart';
 class FlashcardController extends GetxController {
   final AiService _aiService = AiService();
 
-  // AI ka response store karo
-  RxString answer = ''.obs;
-
+  var messages = <Map<String, String>>[].obs;
   // Loading state
-  RxBool isLoading = false.obs;
+  var isLoading = false.obs;
 
   // Error message
-  RxString errorMessage = ''.obs;
+  var errorMessage = ''.obs;
 
-  Future<void> getAnswer(String question) async {
-    if (question.trim().isEmpty) {
-      errorMessage.value = 'Please enter a question.';
-      return;
-    }
+  Future<void> sendMessage(String question) async {
+    if (question.trim().isEmpty) return;
+    messages.add({
+      "role": "user",
+      "content": question,
+    });
 
     isLoading.value = true;
     errorMessage.value = '';
-    answer.value = '';
 
     try {
-      final result = await _aiService.getAnswer(question);
-      answer.value = result;
+      final result = await _aiService.getAnswer(messages);
+      messages.add({
+        "role": "assistant",
+        "content": result,
+      });
     } catch (e) {
       errorMessage.value = 'Error: ${e.toString()}';
     } finally {
       isLoading.value = false;
     }
+  }
+
+  void clearChat() {
+    messages.clear();
+    errorMessage.value = '';
   }
 }

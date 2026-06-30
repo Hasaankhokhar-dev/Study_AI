@@ -6,17 +6,12 @@ class AiService {
   final String _apiKey = dotenv.env['OPENROUTER_API_KEY'] ?? '';
   final String _baseUrl = 'https://openrouter.ai/api/v1/chat/completions';
 
-  Future<String> getAnswer(String question) async {
+  Future<String> getAnswer(List<Map<String, String>> messages) async {
     final url = Uri.parse(_baseUrl);
 
     final body = jsonEncode({
       "model": "cohere/north-mini-code:free",
-      "messages": [
-        {
-          "role": "user",
-          "content": question
-        }
-      ]
+      "messages": messages,
     });
 
     final response = await http.post(
